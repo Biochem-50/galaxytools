@@ -1,0 +1,49 @@
+<tool id="proseg" name="Proseg" version="3.1.1+galaxy0" profile="21.05">
+    <description>Probabilistic cell segmentation</description>
+    <requirements>
+        <requirement type="package" version="3.1.1">proseg</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        ln -s '$transcripts' transcripts.csv &&
+        mkdir out_dir &&
+
+        proseg 
+        --output-path 'out_dir'
+        --gene-column 'gene'
+        --cell-id-column 'cell_id'
+        --x-column 'x'
+        --y-column 'y'
+        --z-column 'z'
+        --cell-id-unassigned '0'
+        transcripts.csv &&
+
+        ## 1. Create the directory Galaxy expects for extra files
+        mkdir -p '$segmentation_results.files_path' &&
+
+        ## 2. Copy the Zarr directory into that extra files path
+        cp -r out_dir/proseg-output.zarr/* '$segmentation_results.files_path' &&
+
+        ## 3. Create a simple log or summary as the 'main' file so Galaxy is happy
+        echo "Segmentation complete. Results are in the Zarr directory." > '$segmentation_results'
+    ]]></command>
+    <inputs>
+        <param name="transcripts" type="data" format="csv" label="Transcript coordinates"/>
+    </inputs>
+    <outputs>
+        ## Change back to 'txt' or 'data' for the primary file
+        <data name="segmentation_results" format="txt" label="${tool.name} on ${on_string}: Summary"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="transcripts" value="test_transcripts.csv" ftype="csv"/>
+            <output name="segmentation_results">
+                <assert_contents>
+                    <has_text text="Segmentation complete" />
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+        Proseg 3.1.1. Results are stored as a Zarr hierarchy in the extra files path.
+    ]]></help>
+</tool>

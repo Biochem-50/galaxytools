@@ -1,7 +1,7 @@
 <tool id="proseg" name="Proseg" version="3.1.1+galaxy0" profile="21.05">
     <description>Probabilistic cell segmentation</description>
     <requirements>
-        <requirement type="package" version="3.1.1">proseg</requirement>
+        <requirement type="package" version="3.1.1">rust-proseg</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         ln -s '$transcripts' transcripts.csv &&
